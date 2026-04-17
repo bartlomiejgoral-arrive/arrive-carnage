@@ -46,7 +46,35 @@ npm run build
 
 ## User interface
 
-The game renders inside a fixed 800×600 PIXI.js canvas mounted by the `GameCanvas` React component. The canvas uses `image-rendering: pixelated` to keep pixel art crisp at any display resolution. A CRT-style scanline overlay is applied on top of the stage for a retro feel. Pixel art assets should be placed in `public/assets/` and loaded via `Assets.load()` from PIXI.js. The React layer outside the canvas is reserved for UI overlays such as menus, HUD elements, and settings panels.
+All visuals are pixel-based. The game renders inside a PIXI.js canvas mounted by the `GameCanvas` React component, with `image-rendering: pixelated` to keep pixel art crisp at any display resolution.
+
+### Main menu
+
+On launch the player sees the game title **"Arrive Carnage"** and two options:
+
+- **START** — begins a new game
+- **TOP 5** — opens the leaderboard screen
+
+### Leaderboard (TOP 5)
+
+Displays the top 5 all-time scores stored in local storage. An **EXIT** option returns the player to the main menu.
+
+### Gameboard
+
+The play area is **6 tiles wide** and fills the full canvas height, laid out as:
+
+```
+[ greenery ] [ sidewalk | lane | lane | lane | lane | sidewalk ] [ greenery ]
+```
+
+- The **6-tile-wide road** sits in the centre of the canvas, composed of a 4-lane street flanked by one sidewalk tile on each side.
+- **Greenery** fills the remaining canvas width on both sides and scrolls in sync with the road, extending the sense of movement beyond the play area.
+
+The board is an **infinite scroller** — tiles scroll continuously downward and the scroll speed increases gradually over time. The player's car starts at the bottom centre (tile 3) and can move **left or right** using the arrow keys to avoid obstacles (see the Game engine section).
+
+### Game over screen
+
+When the run ends, the player's **total score** is displayed and automatically saved to local storage. The saved results are reflected in the TOP 5 leaderboard.
 
 ---
 
