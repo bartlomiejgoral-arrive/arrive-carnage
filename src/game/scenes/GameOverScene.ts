@@ -3,6 +3,7 @@ import type { IScene } from '../IScene'
 import type { InputManager } from '../InputManager'
 import type { ScoreStore } from '../ScoreStore'
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants'
+import { formatFine } from '../formatFine'
 
 export class GameOverScene implements IScene {
   private readonly container = new Container()
@@ -31,8 +32,8 @@ export class GameOverScene implements IScene {
     title.y = 200
 
     const scoreLabel = new Text({
-      text: `Score: ${this.score}`,
-      style: { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff, letterSpacing: 2 },
+      text: `FINE: ${formatFine(this.score)}`,
+      style: { fontFamily: 'monospace', fontSize: 28, fill: 0xff4444, letterSpacing: 2 },
     })
     scoreLabel.anchor.set(0.5, 0.5)
     scoreLabel.x = CANVAS_WIDTH / 2

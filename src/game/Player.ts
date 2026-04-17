@@ -19,6 +19,14 @@ export class Player {
     return this.column
   }
 
+  get top(): number {
+    return PLAYER_Y
+  }
+
+  get bottom(): number {
+    return PLAYER_Y + CAR_HEIGHT
+  }
+
   init(stage: ContainerType): void {
     const car = colorRect(CAR_WIDTH, CAR_HEIGHT, PlaceholderColors.playerCar)
     car.x = CAR_X_OFFSET

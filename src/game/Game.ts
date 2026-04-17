@@ -5,6 +5,7 @@ import { ScoreStore } from './ScoreStore'
 import { TitleScene } from './scenes/TitleScene'
 import { LeaderboardScene } from './scenes/LeaderboardScene'
 import { GameplayScene } from './scenes/GameplayScene'
+import { GameOverScene } from './scenes/GameOverScene'
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from './constants'
 
 export async function createGame(container: HTMLElement): Promise<Application> {
@@ -41,8 +42,11 @@ export async function createGame(container: HTMLElement): Promise<Application> {
   const goToLeaderboard = () =>
     scenes.transition(new LeaderboardScene(input, scoreStore, goToTitle))
 
+  const goToGameOver = (score: number) =>
+    scenes.transition(new GameOverScene(input, scoreStore, score, goToTitle))
+
   const goToGame = () =>
-    scenes.transition(new GameplayScene(input))
+    scenes.transition(new GameplayScene(input, goToGameOver))
 
   goToTitle()
 

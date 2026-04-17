@@ -1,6 +1,7 @@
 import type { Container } from 'pixi.js'
 import { COLUMN_COUNT, INITIAL_SCROLL_SPEED, SPAWN_INTERVAL } from './constants'
 import type { GameObject } from './objects/GameObject'
+import type { CollidableObject } from './collision'
 import { Car } from './objects/Car'
 import { StreetLamp } from './objects/StreetLamp'
 import { Parkmeter } from './objects/Parkmeter'
@@ -41,6 +42,14 @@ export class Spawner {
 
   getObjects(): readonly GameObject[] {
     return this.objects
+  }
+
+  removeObject(obj: CollidableObject): void {
+    const idx = this.objects.findIndex(o => o === obj)
+    if (idx !== -1) {
+      this.objects[idx].destroy()
+      this.objects.splice(idx, 1)
+    }
   }
 
   destroy(): void {

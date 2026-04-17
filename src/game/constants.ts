@@ -17,3 +17,5 @@ export const MAX_SCORES = 5
 export const PLAYER_START_COLUMN = 2 // 0-indexed; column 3 in 1-indexed spec
 
 export const SPAWN_INTERVAL = 90 // frames between spawn events (~1.5 s at 60 fps)
+
+export const FINE_PER_SECOND = 20 // dollars added to fine per second of survival

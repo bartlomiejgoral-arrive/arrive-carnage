@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { Player } from './Player'
 import type { InputManager } from './InputManager'
 import type { Container } from 'pixi.js'
-import { ROAD_X, TILE_SIZE, COLUMN_COUNT, PLAYER_START_COLUMN } from './constants'
+import { CANVAS_HEIGHT, ROAD_X, TILE_SIZE, COLUMN_COUNT, PLAYER_START_COLUMN } from './constants'
 
 vi.mock('pixi.js', () => ({
   Container: vi.fn(() => ({ addChild: vi.fn(), destroy: vi.fn(), x: 0, y: 0 })),
@@ -81,6 +81,19 @@ describe('Player', () => {
     handlers['right']()
     const instance = vi.mocked(Container).mock.results[0].value
     expect(instance.x).toBe(ROAD_X + (PLAYER_START_COLUMN + 1) * TILE_SIZE)
+  })
+
+  it('top is a positive number less than bottom', () => {
+    const { input } = makeInput()
+    const player = new Player(input)
+    expect(player.top).toBeGreaterThan(0)
+    expect(player.top).toBeLessThan(player.bottom)
+  })
+
+  it('bottom is within the canvas height', () => {
+    const { input } = makeInput()
+    const player = new Player(input)
+    expect(player.bottom).toBeLessThanOrEqual(CANVAS_HEIGHT)
   })
 
   it('deregisters input handlers on destroy', () => {

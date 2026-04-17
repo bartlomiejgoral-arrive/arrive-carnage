@@ -1,8 +1,9 @@
 import { Container } from 'pixi.js'
 import type { Container as ContainerType } from 'pixi.js'
 import { CANVAS_HEIGHT, TILE_SIZE, ROAD_X } from '../constants'
+import type { GameObjectType } from '../types'
 
-export type GameObjectType = 'deadly' | 'collectible'
+export type { GameObjectType }
 
 export abstract class GameObject {
   protected readonly container = new Container()

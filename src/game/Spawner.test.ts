@@ -102,6 +102,17 @@ describe('Spawner', () => {
     expect(obj.destroy).toHaveBeenCalled()
   })
 
+  it('removeObject destroys and removes the object from the list', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.3)
+    const spawner = new Spawner()
+    spawner.init(mockStage)
+    spawner.update(SPAWN_INTERVAL)
+    const obj = spawner.getObjects()[0]
+    spawner.removeObject(obj)
+    expect(spawner.getObjects()).toHaveLength(0)
+    expect((obj as any).destroy).toHaveBeenCalled()
+  })
+
   it('respects setSpeed when computing object movement', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.3)
     const spawner = new Spawner()
