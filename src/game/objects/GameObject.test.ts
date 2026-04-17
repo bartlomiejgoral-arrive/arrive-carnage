@@ -7,10 +7,7 @@ vi.mock('pixi.js', () => ({
   Container: vi.fn(() => ({ addChild: vi.fn(), destroy: vi.fn(), x: 0, y: 0 })),
 }))
 
-vi.mock('../AssetLoader', () => ({
-  PlaceholderColors: {},
-  colorRect: vi.fn(() => ({ x: 0, y: 0 })),
-}))
+vi.mock('../AssetLoader', () => ({}))
 
 class TestObject extends GameObject {
   readonly type = 'deadly' as const

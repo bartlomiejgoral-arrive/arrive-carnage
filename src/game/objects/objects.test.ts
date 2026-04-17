@@ -9,8 +9,9 @@ vi.mock('pixi.js', () => ({
 }))
 
 vi.mock('../AssetLoader', () => ({
-  PlaceholderColors: { enemyCar: 0xff3333, streetLamp: 0x999999, parkmeter: 0xffdd00 },
-  colorRect: vi.fn(() => ({ x: 0, y: 0 })),
+  createEnemyCar:  vi.fn(() => ({ x: 0, y: 0 })),
+  createStreetLamp: vi.fn(() => ({ x: 0, y: 0 })),
+  createParkmeter: vi.fn(() => ({ x: 0, y: 0 })),
 }))
 
 describe('Car', () => {

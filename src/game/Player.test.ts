@@ -9,8 +9,7 @@ vi.mock('pixi.js', () => ({
 }))
 
 vi.mock('./AssetLoader', () => ({
-  PlaceholderColors: { playerCar: 0x4488ff },
-  colorRect: vi.fn(() => ({ x: 0, y: 0 })),
+  createPlayerCar: vi.fn(() => ({ x: 0, y: 0 })),
 }))
 
 function makeInput() {

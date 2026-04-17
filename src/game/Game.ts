@@ -2,6 +2,7 @@ import { Application, Container, Graphics } from 'pixi.js'
 import { SceneManager } from './SceneManager'
 import { InputManager } from './InputManager'
 import { ScoreStore } from './ScoreStore'
+import { loadGameAssets } from './AssetLoader'
 import { TitleScene } from './scenes/TitleScene'
 import { LeaderboardScene } from './scenes/LeaderboardScene'
 import { GameplayScene } from './scenes/GameplayScene'
@@ -31,6 +32,8 @@ export async function createGame(container: HTMLElement): Promise<Application> {
     scanlines.rect(0, y, CANVAS_WIDTH, 1).fill({ color: 0x000000, alpha: 0.15 })
   }
   app.stage.addChild(scanlines)
+
+  await loadGameAssets()
 
   const input = new InputManager()
   const scoreStore = new ScoreStore()
