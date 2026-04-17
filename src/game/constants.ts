@@ -27,7 +27,7 @@ export const ENEMY_CAR_SPEED_SLOW = 80   // px/s — rightmost car lane (column 
 
 export const LANE_CHANGE_MIN_INTERVAL = 3   // seconds between lane-change attempts
 export const LANE_CHANGE_MAX_INTERVAL = 7
-export const LANE_CHANGE_DURATION = 1.2     // seconds to complete one lane change
+export const LANE_CHANGE_DURATION = 1.8     // seconds to complete one lane change
 
 export const SCORE_RATE = 2            // dollars per second
 export const PARKMETER_BONUS = 50      // dollars

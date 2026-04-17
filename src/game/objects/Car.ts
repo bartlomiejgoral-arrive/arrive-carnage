@@ -14,10 +14,12 @@ export function laneSpeed(column: number): number {
   return ENEMY_CAR_SPEED_FAST + t * (ENEMY_CAR_SPEED_SLOW - ENEMY_CAR_SPEED_FAST)
 }
 
-/** Smooth-step easing: accelerate then decelerate */
-function smoothstep(t: number): number {
-  return t * t * (3 - 2 * t)
+/** Quintic smootherstep — flatter at both ends than basic smoothstep */
+function smootherstep(t: number): number {
+  return t * t * t * (t * (t * 6 - 15) + 10)
 }
+
+const LANE_CHANGE_TILT = 0.12  // max rotation in radians (~7°)
 
 export class Car extends GameObject {
   private currentSpeed: number
@@ -59,12 +61,18 @@ export class Car extends GameObject {
       this.laneProgress += delta / LANE_CHANGE_DURATION
       if (this.laneProgress >= 1) {
         this.container.x = this.targetX
+        this.container.rotation = 0
         this.currentSpeed = this.targetSpeed
         this._changingLane = false
       } else {
-        const t = smoothstep(this.laneProgress)
+        const t = smootherstep(this.laneProgress)
         this.container.x = this.startX + (this.targetX - this.startX) * t
         this.currentSpeed = this.startSpeed + (this.targetSpeed - this.startSpeed) * t
+
+        // Tilt toward the direction of movement — peaks at midpoint, eases out
+        const tiltAmount = Math.sin(this.laneProgress * Math.PI)
+        const dir = this.targetX > this.startX ? 1 : -1
+        this.container.rotation = dir * LANE_CHANGE_TILT * tiltAmount
       }
     }
 

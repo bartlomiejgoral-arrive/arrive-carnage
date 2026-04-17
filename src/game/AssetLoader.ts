@@ -1,4 +1,4 @@
-import { Assets, Graphics, Sprite, TextureSource, type Container } from 'pixi.js'
+import { Assets, Container, Graphics, Sprite, TextureSource } from 'pixi.js'
 
 export const PlaceholderColors = {
   greenery:   0x3a7d44,
@@ -48,7 +48,7 @@ export class AssetLoader {
     const sprite = new Sprite(Assets.get(`car_${randInt(1, 23)}`))
     sprite.anchor.set(0.5)
     sprite.scale.set(0.32)
-    return sprite
+    return this.withShadow(sprite, 5, 5, 0.45)
   }
 
   createEnemyCar(): Container {
@@ -56,7 +56,7 @@ export class AssetLoader {
     const sprite = new Sprite(Assets.get(`car_${randInt(1, 23)}`))
     sprite.anchor.set(0.5)
     sprite.scale.set(0.32)
-    return sprite
+    return this.withShadow(sprite, 5, 5, 0.45)
   }
 
   createParkmeter(): Container {
@@ -68,7 +68,7 @@ export class AssetLoader {
     const sprite = new Sprite(Assets.get('parkmeter'))
     sprite.anchor.set(0.5)
     sprite.scale.set(0.32)
-    return sprite
+    return this.withShadow(sprite, 4, 4, 0.4)
   }
 
   createStreetLamp(side: 'left' | 'right'): Container {
@@ -81,7 +81,7 @@ export class AssetLoader {
     const sprite = new Sprite(Assets.get(`lamp_${side}_${variant}`))
     sprite.anchor.set(0.5)
     sprite.scale.set(0.35)
-    return sprite
+    return this.withShadow(sprite, 4, 4, 0.4)
   }
 
   createTree(): Container {
@@ -95,7 +95,7 @@ export class AssetLoader {
     sprite.anchor.set(0.5)
     const s = 0.2 + Math.random() * 0.15  // random size variation
     sprite.scale.set(s)
-    return sprite
+    return this.withShadow(sprite, 4, 4, 0.35)
   }
 
   createGrassTuft(): Container {
@@ -110,6 +110,20 @@ export class AssetLoader {
     }
     g.pivot?.set(0, 0)
     return g
+  }
+
+  /** Wrap a sprite in a container with a drop-shadow clone underneath */
+  private withShadow(sprite: Sprite, offsetX = 3, offsetY = 3, alpha = 0.3): Container {
+    const shadow = new Sprite(sprite.texture)
+    shadow.anchor.copyFrom(sprite.anchor)
+    shadow.scale.copyFrom(sprite.scale)
+    shadow.tint = 0x000000
+    shadow.alpha = alpha
+    shadow.position.set(offsetX, offsetY)
+
+    const wrapper = new Container()
+    wrapper.addChild(shadow, sprite)
+    return wrapper
   }
 
   private placeholderCar(color: number): Container {
