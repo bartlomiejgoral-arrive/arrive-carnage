@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { GameplayScene } from './GameplayScene'
 import { ScrollingBackground } from '../ScrollingBackground'
+import { Player } from '../Player'
 import type { Container } from 'pixi.js'
+import type { InputManager } from '../InputManager'
 
 vi.mock('../ScrollingBackground', () => ({
   ScrollingBackground: vi.fn(() => ({
@@ -12,33 +14,46 @@ vi.mock('../ScrollingBackground', () => ({
   })),
 }))
 
+vi.mock('../Player', () => ({
+  Player: vi.fn(() => ({
+    init: vi.fn(),
+    destroy: vi.fn(),
+  })),
+}))
+
+const mockInput = {} as InputManager
 const mockStage = { addChild: vi.fn() } as unknown as Container
 
 beforeEach(() => {
   vi.mocked(ScrollingBackground).mockClear()
+  vi.mocked(Player).mockClear()
 })
 
 describe('GameplayScene', () => {
-  it('delegates init to ScrollingBackground', () => {
-    const scene = new GameplayScene()
+  it('delegates init to ScrollingBackground and Player', () => {
+    const scene = new GameplayScene(mockInput)
     scene.init(mockStage)
-    const instance = vi.mocked(ScrollingBackground).mock.results[0].value
-    expect(instance.init).toHaveBeenCalledWith(mockStage)
+    const bg = vi.mocked(ScrollingBackground).mock.results[0].value
+    const player = vi.mocked(Player).mock.results[0].value
+    expect(bg.init).toHaveBeenCalledWith(mockStage)
+    expect(player.init).toHaveBeenCalledWith(mockStage)
   })
 
   it('delegates update to ScrollingBackground', () => {
-    const scene = new GameplayScene()
+    const scene = new GameplayScene(mockInput)
     scene.init(mockStage)
     scene.update(16)
-    const instance = vi.mocked(ScrollingBackground).mock.results[0].value
-    expect(instance.update).toHaveBeenCalledWith(16)
+    const bg = vi.mocked(ScrollingBackground).mock.results[0].value
+    expect(bg.update).toHaveBeenCalledWith(16)
   })
 
-  it('delegates destroy to ScrollingBackground', () => {
-    const scene = new GameplayScene()
+  it('delegates destroy to ScrollingBackground and Player', () => {
+    const scene = new GameplayScene(mockInput)
     scene.init(mockStage)
     scene.destroy()
-    const instance = vi.mocked(ScrollingBackground).mock.results[0].value
-    expect(instance.destroy).toHaveBeenCalled()
+    const bg = vi.mocked(ScrollingBackground).mock.results[0].value
+    const player = vi.mocked(Player).mock.results[0].value
+    expect(bg.destroy).toHaveBeenCalled()
+    expect(player.destroy).toHaveBeenCalled()
   })
 })

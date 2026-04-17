@@ -42,7 +42,7 @@ export async function createGame(container: HTMLElement): Promise<Application> {
     scenes.transition(new LeaderboardScene(input, scoreStore, goToTitle))
 
   const goToGame = () =>
-    scenes.transition(new GameplayScene())
+    scenes.transition(new GameplayScene(input))
 
   goToTitle()
 
