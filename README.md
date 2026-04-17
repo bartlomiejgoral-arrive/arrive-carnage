@@ -87,7 +87,7 @@ A 2D vertical infinite scroller. The world scrolls from bottom to top — the pl
 |-------------|-------------|----------------------------|
 | StreetLamp  | Sidewalk    | Game over                  |
 | Car         | Road        | Game over                  |
-| Parkmeter   | Sidewalk    | **+50 points** (collected) |
+| Parkmeter   | Sidewalk    | **+$50 fine** (survives, keeps going) |
 
 - All objects are same-direction (moving the same way as the player — slower cars/props being overtaken).
 - Objects spawn randomly per column at the top of the screen and scroll downward.
@@ -95,8 +95,9 @@ A 2D vertical infinite scroller. The world scrolls from bottom to top — the pl
 
 ### Scoring
 
-- **Base score**: continuously increases with distance/time survived.
-- **Bonus**: +50 points for each Parkmeter collected.
+- Score is displayed as a **fine to pay** — a negative dollar value that grows as the player breaks the law (e.g. `-$0`, `-$120`, `-$1 340`).
+- **Base fine**: continuously increases with distance/time survived.
+- **Parkmeter**: hitting one **adds $50 to the fine** (e.g. `-$200` → `-$250`).
 
 ### Screens & flow
 
