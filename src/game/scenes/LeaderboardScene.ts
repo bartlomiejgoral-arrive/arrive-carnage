@@ -1,6 +1,7 @@
-import { Container, Text } from 'pixi.js'
+import { Container, Graphics, Text } from 'pixi.js'
 import type { IScene } from '../IScene'
 import type { InputManager } from '../InputManager'
+import type { SoundManager } from '../SoundManager'
 import type { ScoreStore } from '../ScoreStore'
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants'
 
@@ -9,20 +10,24 @@ export class LeaderboardScene implements IScene {
 
   constructor(
     private readonly input: InputManager,
+    private readonly sound: SoundManager,
     private readonly scoreStore: ScoreStore,
     private readonly onExit: () => void,
   ) {}
 
-  private readonly handleEnter = () => this.onExit()
+  private readonly handleEnter = () => { this.sound.play('menuConfirm'); this.onExit() }
 
   init(stage: Container): void {
+    const bg = new Graphics().rect(-2000, -2000, 6000, 6000).fill(0x1a1a2e)
+    this.container.addChild(bg)
+
     const title = new Text({
       text: 'TOP 5',
       style: { fontFamily: 'monospace', fontSize: 36, fill: 0xff6b35, letterSpacing: 4 },
     })
     title.anchor.set(0.5, 0)
     title.x = CANVAS_WIDTH / 2
-    title.y = 60
+    title.y = CANVAS_HEIGHT * 0.1
 
     this.container.addChild(title)
 
@@ -34,7 +39,7 @@ export class LeaderboardScene implements IScene {
       })
       empty.anchor.set(0.5, 0)
       empty.x = CANVAS_WIDTH / 2
-      empty.y = 220
+      empty.y = CANVAS_HEIGHT * 0.3
       this.container.addChild(empty)
     } else {
       scores.forEach((entry, i) => {
@@ -44,7 +49,7 @@ export class LeaderboardScene implements IScene {
         })
         row.anchor.set(0.5, 0)
         row.x = CANVAS_WIDTH / 2
-        row.y = 170 + i * 52
+        row.y = CANVAS_HEIGHT * 0.25 + i * 52
         this.container.addChild(row)
       })
     }

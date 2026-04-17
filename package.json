@@ -11,9 +11,11 @@
     "test:run": "vitest run"
   },
   "dependencies": {
+    "@zzfx-studio/zzfxm": "^0.1.2",
     "pixi.js": "^8.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "zzfx": "^1.3.2"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

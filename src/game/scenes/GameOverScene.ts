@@ -1,6 +1,7 @@
-import { Container, Text } from 'pixi.js'
+import { Container, Graphics, Text } from 'pixi.js'
 import type { IScene } from '../IScene'
 import type { InputManager } from '../InputManager'
+import type { SoundManager } from '../SoundManager'
 import type { ScoreStore } from '../ScoreStore'
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants'
 
@@ -9,6 +10,7 @@ export class GameOverScene implements IScene {
 
   constructor(
     private readonly input: InputManager,
+    private readonly sound: SoundManager,
     private readonly scoreStore: ScoreStore,
     private readonly score: number,
     private readonly onExit: () => void,
@@ -20,7 +22,11 @@ export class GameOverScene implements IScene {
   }
 
   init(stage: Container): void {
+    this.sound.play('gameOver')
     this.scoreStore.addScore(this.score)
+
+    const bg = new Graphics().rect(-2000, -2000, 6000, 6000).fill(0x1a1a2e)
+    this.container.addChild(bg)
 
     const title = new Text({
       text: 'GAME OVER',
@@ -28,7 +34,7 @@ export class GameOverScene implements IScene {
     })
     title.anchor.set(0.5, 0.5)
     title.x = CANVAS_WIDTH / 2
-    title.y = 200
+    title.y = CANVAS_HEIGHT * 0.3
 
     const scoreLabel = new Text({
       text: `Score: ${this.score}`,
@@ -36,7 +42,7 @@ export class GameOverScene implements IScene {
     })
     scoreLabel.anchor.set(0.5, 0.5)
     scoreLabel.x = CANVAS_WIDTH / 2
-    scoreLabel.y = 300
+    scoreLabel.y = CANVAS_HEIGHT * 0.42
 
     const prompt = new Text({
       text: 'press any key to continue',

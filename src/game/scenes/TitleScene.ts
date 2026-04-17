@@ -1,9 +1,10 @@
-import { Container, Text } from 'pixi.js'
+import { Container, Graphics, Text } from 'pixi.js'
 import type { IScene } from '../IScene'
 import type { InputManager } from '../InputManager'
+import type { SoundManager } from '../SoundManager'
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants'
 
-const MENU_Y = 360
+const MENU_Y = CANVAS_HEIGHT * 0.45
 const MENU_SPACING = 160
 
 export class TitleScene implements IScene {
@@ -15,6 +16,7 @@ export class TitleScene implements IScene {
 
   constructor(
     private readonly input: InputManager,
+    private readonly sound: SoundManager,
     private readonly onStart: () => void,
     private readonly onLeaderboard: () => void,
   ) {}
@@ -22,26 +24,33 @@ export class TitleScene implements IScene {
   private readonly handleLeft = () => {
     this.selectedIndex = 0
     this.updateCursor()
+    this.sound.play('menuBlip')
   }
 
   private readonly handleRight = () => {
     this.selectedIndex = 1
     this.updateCursor()
+    this.sound.play('menuBlip')
   }
 
   private readonly handleEnter = () => {
+    this.sound.play('menuConfirm')
     if (this.selectedIndex === 0) this.onStart()
     else this.onLeaderboard()
   }
 
   init(stage: Container): void {
+    // Full-bleed background covering any window size
+    const bg = new Graphics().rect(-2000, -2000, 6000, 6000).fill(0x1a1a2e)
+    this.container.addChild(bg)
+
     const title = new Text({
       text: 'ARRIVE CARNAGE',
       style: { fontFamily: 'monospace', fontSize: 40, fill: 0xff6b35, letterSpacing: 6 },
     })
     title.anchor.set(0.5, 0.5)
     title.x = CANVAS_WIDTH / 2
-    title.y = 180
+    title.y = CANVAS_HEIGHT * 0.22
 
     const labels = ['START', 'TOP 5']
     labels.forEach((label, i) => {
