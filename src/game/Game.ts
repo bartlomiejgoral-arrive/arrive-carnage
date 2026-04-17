@@ -4,7 +4,7 @@ import { InputManager } from './InputManager'
 import { ScoreStore } from './ScoreStore'
 import { TitleScene } from './scenes/TitleScene'
 import { LeaderboardScene } from './scenes/LeaderboardScene'
-import { GameOverScene } from './scenes/GameOverScene'
+import { GameplayScene } from './scenes/GameplayScene'
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from './constants'
 
 export async function createGame(container: HTMLElement): Promise<Application> {
@@ -41,9 +41,8 @@ export async function createGame(container: HTMLElement): Promise<Application> {
   const goToLeaderboard = () =>
     scenes.transition(new LeaderboardScene(input, scoreStore, goToTitle))
 
-  // GameplayScene (Phase 3+) will replace this stub
   const goToGame = () =>
-    scenes.transition(new GameOverScene(input, scoreStore, 0, goToTitle))
+    scenes.transition(new GameplayScene())
 
   goToTitle()
 
