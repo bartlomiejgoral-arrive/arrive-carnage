@@ -30,6 +30,21 @@ arrive-carnage/
 
 Run `npm run dev` to start the dev server. Currently shows an "ARRIVE CARNAGE" title screen with a blinking prompt and a retro CRT scanline overlay. Once you have pixel art assets, drop them in `public/assets/` and load them via `Assets.load()` in `Game.ts`.
 
+## Development guidelines
+
+### Unit tests
+- Testing framework: **Vitest** with jsdom environment
+- Every class or module must have a co-located `*.test.ts` file
+- Run tests with `npm test` (watch mode) or `npm run test:run` (single pass)
+- Tests must not import PIXI classes directly — use `import type` for types and plain object mocks for PIXI instances
+
+### SOLID principles
+- **S — Single responsibility**: each class does one thing; scenes, managers, and stores are separate
+- **O — Open/closed**: extend behaviour via new classes or by adding scene implementations, not by modifying existing ones
+- **L — Liskov substitution**: all scenes implement `IScene`; any scene must be swappable without breaking `SceneManager`
+- **I — Interface segregation**: keep interfaces small and focused (e.g. `IScene` only exposes `init`, `update`, `destroy`)
+- **D — Dependency inversion**: depend on interfaces (`IScene`), not concrete classes
+
 ## Sources
 
 - [Node.js Releases](https://nodejs.org/en/about/previous-releases)
