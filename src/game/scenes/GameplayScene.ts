@@ -1,4 +1,4 @@
-import { Container, Text } from 'pixi.js'
+import { Container, Graphics, Text } from 'pixi.js'
 import type { IScene } from '../IScene'
 import type { InputManager } from '../InputManager'
 import type { AssetLoader } from '../AssetLoader'
@@ -17,12 +17,17 @@ import {
 
 import type { Hitbox } from '../objects/GameObject'
 
-// Player car hitbox — same shrink as enemy cars (55% width, 85% height)
+// Fixed hitbox based on actual car body within the 248px sprite at 0.32 scale
+const CAR_HITBOX_W = 248 * 0.32 * 0.60  // ~48px — car body width
+const CAR_HITBOX_H = 248 * 0.32 * 0.85  // ~67px — car body height
+
 function playerHitbox(player: Container): Hitbox {
-  const b = player.getBounds()
-  const trimX = b.width * 0.225   // (1 - 0.55) / 2
-  const trimY = b.height * 0.075  // (1 - 0.85) / 2
-  return { x: b.x + trimX, y: b.y + trimY, width: b.width * 0.55, height: b.height * 0.85 }
+  return {
+    x: player.x - CAR_HITBOX_W / 2,
+    y: player.y - CAR_HITBOX_H / 2,
+    width: CAR_HITBOX_W,
+    height: CAR_HITBOX_H,
+  }
 }
 
 function rectsOverlap(a: Hitbox, b: Hitbox): boolean {
@@ -45,10 +50,14 @@ const LATERAL_FRICTION = 4     // damping when coasting (no input)
 const MAX_TILT = 0.15          // radians (~8.5°)
 const TILT_LERP = 8            // how fast visual tilt follows velocity
 
+const HEADLIGHT_PROXIMITY = 120  // ~1.5 car lengths
+const HEADLIGHT_BLINK_RATE = 0.12 // seconds per blink toggle
+
 export class GameplayScene implements IScene {
   private readonly container = new Container()
   private readonly background: ScrollingBackground
   private readonly player: Container
+  private readonly headlights: Graphics
   private readonly hud: Text
   private spawner!: Spawner
   private elapsedTime = 0
@@ -58,6 +67,7 @@ export class GameplayScene implements IScene {
   private rightHeld = false
   private lateralVelocity = 0  // px/s
   private currentTilt = 0
+  private headlightBlinkTimer = 0
 
   private readonly onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'ArrowLeft') this.leftHeld = true
@@ -77,6 +87,21 @@ export class GameplayScene implements IScene {
   ) {
     this.background = new ScrollingBackground(INITIAL_SCROLL_SPEED, this.assetLoader)
     this.player = this.assetLoader.createPlayerCar()
+
+    // Headlight beams — triangular cones projecting upward (ahead of the player)
+    this.headlights = new Graphics()
+      // Outer glow
+      .poly([-11, -34, -22, -90, 0, -90]).fill({ color: 0xffee88, alpha: 0.15 })
+      .poly([11, -34, 0, -90, 22, -90]).fill({ color: 0xffee88, alpha: 0.15 })
+      // Inner beam
+      .poly([-11, -34, -17, -70, -5, -70]).fill({ color: 0xffff99, alpha: 0.4 })
+      .poly([11, -34, 5, -70, 17, -70]).fill({ color: 0xffff99, alpha: 0.4 })
+      // Source dots
+      .circle(-11, -33, 3).fill({ color: 0xffffcc, alpha: 0.9 })
+      .circle(11, -33, 3).fill({ color: 0xffffcc, alpha: 0.9 })
+    this.headlights.visible = false
+    this.player.addChild(this.headlights)
+
     this.hud = new Text({
       text: formatScore(0),
       style: { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff },
@@ -135,6 +160,21 @@ export class GameplayScene implements IScene {
     this.sound.setEnginePitch(speed / INITIAL_SCROLL_SPEED)
 
     this.spawner.update(speed, delta)
+
+    // Headlight blink when an enemy car is close ahead
+    const nearbyEnemy = this.spawner.objects.some((obj) => {
+      if (!(obj instanceof Car)) return false
+      const dx = Math.abs(obj.container.x - this.player.x)
+      const dy = this.player.y - obj.container.y  // positive = enemy is above (ahead)
+      return dx < 50 && dy > 0 && dy < HEADLIGHT_PROXIMITY
+    })
+    if (nearbyEnemy) {
+      this.headlightBlinkTimer += delta
+      this.headlights.visible = Math.floor(this.headlightBlinkTimer / HEADLIGHT_BLINK_RATE) % 2 === 0
+    } else {
+      this.headlights.visible = false
+      this.headlightBlinkTimer = 0
+    }
 
     const ph = playerHitbox(this.player)
     for (let i = this.spawner.objects.length - 1; i >= 0; i--) {

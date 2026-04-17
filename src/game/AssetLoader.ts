@@ -16,8 +16,15 @@ export function colorRect(width: number, height: number, color: number): Graphic
   return g
 }
 
-function randInt(min: number, max: number): number {
-  return min + Math.floor(Math.random() * (max - min + 1))
+const PLAYER_CARS = ['bmw_1', 'bmw_2', 'bmw_3', 'bmw_4']
+const ENEMY_CARS = [
+  'car_1', 'car_2', 'car_3', 'car_4', 'car_5', 'car_6', 'car_7', 'car_9',
+  'car_10', 'car_11', 'car_12', 'car_13', 'car_14', 'car_16', 'car_17', 'car_18',
+  'car_21', 'car_22', 'car_23',
+]
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
 }
 
 export class AssetLoader {
@@ -27,8 +34,8 @@ export class AssetLoader {
     TextureSource.defaultOptions.scaleMode = 'nearest'
 
     const manifest: { alias: string; src: string }[] = []
-    for (let i = 1; i <= 23; i++) {
-      manifest.push({ alias: `car_${i}`, src: `/assets/cars/car_${i}.png` })
+    for (const id of [...PLAYER_CARS, ...ENEMY_CARS]) {
+      manifest.push({ alias: id, src: `/assets/cars/${id}.png` })
     }
     manifest.push(
       { alias: 'parkmeter', src: '/assets/meters/parking-meeter.png' },
@@ -45,7 +52,7 @@ export class AssetLoader {
 
   createPlayerCar(): Container {
     if (!this.loaded) return this.placeholderCar(PlaceholderColors.playerCar)
-    const sprite = new Sprite(Assets.get(`car_${randInt(1, 23)}`))
+    const sprite = new Sprite(Assets.get(pickRandom(PLAYER_CARS)))
     sprite.anchor.set(0.5)
     sprite.scale.set(0.32)
     return this.withShadow(sprite, 5, 5, 0.45)
@@ -53,7 +60,7 @@ export class AssetLoader {
 
   createEnemyCar(): Container {
     if (!this.loaded) return this.placeholderCar(PlaceholderColors.enemyCar)
-    const sprite = new Sprite(Assets.get(`car_${randInt(1, 23)}`))
+    const sprite = new Sprite(Assets.get(pickRandom(ENEMY_CARS)))
     sprite.anchor.set(0.5)
     sprite.scale.set(0.32)
     return this.withShadow(sprite, 5, 5, 0.45)

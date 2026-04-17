@@ -4,7 +4,11 @@ import {
   ENEMY_CAR_SPEED_FAST, ENEMY_CAR_SPEED_SLOW,
   LANE_CHANGE_DURATION,
 } from '../constants'
-import { GameObject } from './GameObject'
+import { GameObject, type Hitbox } from './GameObject'
+
+// Fixed hitbox matching the actual car body within the 248px sprite at 0.32 scale
+const CAR_HITBOX_W = 248 * 0.32 * 0.60  // ~48px
+const CAR_HITBOX_H = 248 * 0.32 * 0.85  // ~67px
 
 /** Left lane = fast, right lane = slow. Lerp between the two extremes. */
 export function laneSpeed(column: number): number {
@@ -37,9 +41,16 @@ export class Car extends GameObject {
     super(visual, column)
     this.container.x = columnX(column)
     this.container.y = -100
-    this.hitboxWidth = 0.55
-    this.hitboxHeight = 0.85
     this.currentSpeed = laneSpeed(column)
+  }
+
+  override getHitbox(): Hitbox {
+    return {
+      x: this.container.x - CAR_HITBOX_W / 2,
+      y: this.container.y - CAR_HITBOX_H / 2,
+      width: CAR_HITBOX_W,
+      height: CAR_HITBOX_H,
+    }
   }
 
   get isChangingLane(): boolean {
