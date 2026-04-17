@@ -34,6 +34,28 @@ export abstract class GameObject {
 
 All movement is **delta-based**: `px/s × delta` where `delta` is seconds (not frames). This decouples gameplay from frame rate.
 
+### Enemy car movement — lane-based speed
+
+Enemy cars do **not** scroll with the road. They drive in the same direction as the player but at a **constant speed that is always slower** than the player's current scroll speed. This makes them appear as slower traffic that the player overtakes.
+
+Each lane has a different speed, interpolated linearly between two constants:
+
+| Constant | Value | Meaning |
+|---|---|---|
+| `ENEMY_CAR_SPEED_FAST` | 180 px/s | Leftmost car lane (column 2) — fast lane |
+| `ENEMY_CAR_SPEED_SLOW` | 80 px/s | Rightmost car lane (column 5) — slow lane |
+
+The per-lane speed is: `FAST + (column - 2) / (maxCol - 2) × (SLOW - FAST)`
+
+| Column | Lane speed | Drift at 180 scroll | Drift at 255 scroll |
+|---|---|---|---|
+| 2 (left) | 180 px/s | 0 px/s | 75 px/s |
+| 3 | ~147 px/s | 33 px/s | 108 px/s |
+| 4 | ~113 px/s | 67 px/s | 142 px/s |
+| 5 (right) | 80 px/s | 100 px/s | 175 px/s |
+
+On screen, car `y` moves at `(scrollSpeed - laneSpeed) × delta`. As the player accelerates, the gap widens and all cars approach faster — but left-lane cars are always the hardest to catch.
+
 ---
 
 ## Object types

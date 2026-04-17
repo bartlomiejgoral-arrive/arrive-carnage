@@ -44,12 +44,13 @@ function checkCollision(a: Container, b: Container): boolean {
 
 - Track `elapsedTime` (seconds since gameplay started).
 - Current speed = `INITIAL_SCROLL_SPEED + Math.floor(elapsedTime / SPEED_INTERVAL) * SPEED_INCREMENT`
-  - Starts at **120 px/s**.
-  - After 10 s → 145 px/s, after 20 s → 170 px/s, etc.
+  - Starts at **180 px/s**.
+  - After 10 s → 205 px/s, after 20 s → 230 px/s, etc.
   - **No cap** — the game gets arbitrarily fast.
 - The same `speed` value is passed to:
   - The background tile scroller
   - `spawner.update(speed, delta)`
+- **Enemy cars** have their own constant lane-based speeds (see Phase 5). At the initial speed of 180 px/s, the left-lane cars (also 180) are stationary — the player only starts overtaking them once speed ramps up. Right-lane cars drift from the start. As the player accelerates the overtaking speed increases across all lanes.
 
 ---
 
