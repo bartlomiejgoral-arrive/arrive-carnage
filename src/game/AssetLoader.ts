@@ -98,6 +98,20 @@ export class AssetLoader {
     return sprite
   }
 
+  createGrassTuft(): Container {
+    const g = new Graphics()
+    // Small pixel-art grass blades — 2-4 blades per tuft
+    const blades = 2 + Math.floor(Math.random() * 3)
+    const shade = 0x2a6e2f + Math.floor(Math.random() * 0x1a) * 0x000100 // slight green variation
+    for (let i = 0; i < blades; i++) {
+      const x = (i - (blades - 1) / 2) * 3
+      const h = 4 + Math.floor(Math.random() * 5)
+      g.rect(x, -h, 2, h).fill(shade)
+    }
+    g.pivot?.set(0, 0)
+    return g
+  }
+
   private placeholderCar(color: number): Container {
     const g = colorRect(60, 80, color)
     g.pivot.set(30, 40)

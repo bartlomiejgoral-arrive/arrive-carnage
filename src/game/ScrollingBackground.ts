@@ -7,6 +7,8 @@ import {
   ROAD_X, ROAD_WIDTH, COLUMN_COUNT,
 } from './constants'
 import { AsphaltCrackFilter } from './AsphaltCrackFilter'
+import { SidewalkFilter } from './SidewalkFilter'
+import { GrassFilter } from './GrassFilter'
 
 // Extend greenery far beyond the canvas so it fills any screen aspect ratio
 const GREENERY_OVERFLOW = 1200
@@ -17,6 +19,9 @@ const NUM_ROWS = Math.ceil(CANVAS_HEIGHT / TILE_SIZE) + 2
 const TREE_SPACING = 120
 const TREE_CHANCE = 0.25
 const TREE_MARGIN = 60  // keep trees away from sidewalk edges
+
+const GRASS_SPACING = 20
+const GRASS_CHANCE = 0.4
 
 const LANE_X = ROAD_X + TILE_SIZE
 const LANE_WIDTH = (COLUMN_COUNT - 2) * TILE_SIZE
@@ -42,6 +47,12 @@ export class ScrollingBackground {
   private readonly assetLoader: AssetLoader | null
   private roadOverlay: ContainerType | null = null
   private crackFilter: AsphaltCrackFilter | null = null
+  private leftSidewalkOverlay: ContainerType | null = null
+  private rightSidewalkOverlay: ContainerType | null = null
+  private sidewalkFilter: SidewalkFilter | null = null
+  private leftGrassOverlay: ContainerType | null = null
+  private rightGrassOverlay: ContainerType | null = null
+  private grassFilter: GrassFilter | null = null
 
   constructor(speed: number, assetLoader?: AssetLoader) {
     this.speed = speed
@@ -56,7 +67,32 @@ export class ScrollingBackground {
       this.outerContainer.addChild(row)
     }
     this.totalHeight = this.rows.length * TILE_SIZE
-    // Road crack overlay renders below the scrolling rows so lane dashes sit on top
+    // Grass overlays (behind everything)
+    const grassWidth = ROAD_X + GREENERY_OVERFLOW
+    this.grassFilter = new GrassFilter(grassWidth)
+    this.leftGrassOverlay = colorRect(grassWidth, CANVAS_HEIGHT, PlaceholderColors.greenery)
+    this.leftGrassOverlay.x = -GREENERY_OVERFLOW
+    this.leftGrassOverlay.filters = [this.grassFilter]
+    stage.addChild(this.leftGrassOverlay)
+
+    this.rightGrassOverlay = colorRect(grassWidth, CANVAS_HEIGHT, PlaceholderColors.greenery)
+    this.rightGrassOverlay.x = ROAD_X + ROAD_WIDTH
+    this.rightGrassOverlay.filters = [this.grassFilter]
+    stage.addChild(this.rightGrassOverlay)
+
+    // Sidewalk overlays
+    this.sidewalkFilter = new SidewalkFilter()
+    this.leftSidewalkOverlay = colorRect(TILE_SIZE, CANVAS_HEIGHT, PlaceholderColors.sidewalk)
+    this.leftSidewalkOverlay.x = ROAD_X
+    this.leftSidewalkOverlay.filters = [this.sidewalkFilter]
+    stage.addChild(this.leftSidewalkOverlay)
+
+    this.rightSidewalkOverlay = colorRect(TILE_SIZE, CANVAS_HEIGHT, PlaceholderColors.sidewalk)
+    this.rightSidewalkOverlay.x = ROAD_X + ROAD_WIDTH - TILE_SIZE
+    this.rightSidewalkOverlay.filters = [this.sidewalkFilter]
+    stage.addChild(this.rightSidewalkOverlay)
+
+    // Road crack overlay
     this.roadOverlay = colorRect(LANE_WIDTH, CANVAS_HEIGHT, PlaceholderColors.road)
     this.roadOverlay.x = LANE_X
     this.crackFilter = new AsphaltCrackFilter()
@@ -72,6 +108,8 @@ export class ScrollingBackground {
       row.y = calcScrolledY(row.y, step, this.totalHeight)
     }
     this.crackFilter?.update(step)
+    this.sidewalkFilter?.update(step)
+    this.grassFilter?.update(step)
   }
 
   setSpeed(speed: number): void {
@@ -81,39 +119,55 @@ export class ScrollingBackground {
   destroy(): void {
     this.outerContainer.destroy({ children: true })
     this.roadOverlay?.destroy({ children: true })
+    this.leftSidewalkOverlay?.destroy({ children: true })
+    this.rightSidewalkOverlay?.destroy({ children: true })
+    this.leftGrassOverlay?.destroy({ children: true })
+    this.rightGrassOverlay?.destroy({ children: true })
     this.roadOverlay = null
+    this.leftSidewalkOverlay = null
+    this.rightSidewalkOverlay = null
+    this.leftGrassOverlay = null
+    this.rightGrassOverlay = null
     this.crackFilter = null
+    this.sidewalkFilter = null
+    this.grassFilter = null
     this.rows.length = 0
   }
 
   private buildRow(): ContainerType {
     const row = new Container()
 
-    const leftGreenery = colorRect(ROAD_X + GREENERY_OVERFLOW, TILE_SIZE, PlaceholderColors.greenery)
-    leftGreenery.x = -GREENERY_OVERFLOW
-    row.addChild(leftGreenery)
+    // Greenery and sidewalk backgrounds are handled by full-height filtered overlays.
+    // Rows contain scrolling elements: grass tufts and trees.
 
-    for (let col = 0; col < COLUMN_COUNT; col++) {
-      const isSidewalk = col === 0 || col === COLUMN_COUNT - 1
-      if (!isSidewalk) continue
-      const tile = colorRect(TILE_SIZE, TILE_SIZE, PlaceholderColors.sidewalk)
-      tile.x = ROAD_X + col * TILE_SIZE
-      row.addChild(tile)
-    }
-
-
-    const rightGreenery = colorRect(CANVAS_WIDTH - ROAD_X - ROAD_WIDTH + GREENERY_OVERFLOW, TILE_SIZE, PlaceholderColors.greenery)
-    rightGreenery.x = ROAD_X + ROAD_WIDTH
-    row.addChild(rightGreenery)
-
-    // Scatter trees across the full green strips (including overflow)
     if (this.assetLoader) {
       const leftStart = -GREENERY_OVERFLOW
-      const leftEnd = ROAD_X - TREE_MARGIN
-      const rightStart = ROAD_X + ROAD_WIDTH + TREE_MARGIN
+      const leftEnd = ROAD_X - 4  // stop before sidewalk curb
+      const rightStart = ROAD_X + ROAD_WIDTH + 4
       const rightEnd = CANVAS_WIDTH + GREENERY_OVERFLOW
 
-      for (let x = leftStart; x < leftEnd; x += TREE_SPACING) {
+      // Scatter grass tufts densely
+      for (let x = leftStart; x < leftEnd; x += GRASS_SPACING) {
+        if (Math.random() < GRASS_CHANCE) {
+          const tuft = this.assetLoader.createGrassTuft()
+          tuft.x = x + Math.random() * GRASS_SPACING
+          tuft.y = Math.random() * TILE_SIZE
+          row.addChild(tuft)
+        }
+      }
+      for (let x = rightStart; x < rightEnd; x += GRASS_SPACING) {
+        if (Math.random() < GRASS_CHANCE) {
+          const tuft = this.assetLoader.createGrassTuft()
+          tuft.x = x + Math.random() * GRASS_SPACING
+          tuft.y = Math.random() * TILE_SIZE
+          row.addChild(tuft)
+        }
+      }
+
+      // Trees (sparser, on top of grass)
+      const treeLeftEnd = ROAD_X - TREE_MARGIN
+      const treeRightStart = ROAD_X + ROAD_WIDTH + TREE_MARGIN
+      for (let x = leftStart; x < treeLeftEnd; x += TREE_SPACING) {
         if (Math.random() < TREE_CHANCE) {
           const tree = this.assetLoader.createTree()
           tree.x = x + Math.random() * TREE_SPACING
@@ -121,7 +175,7 @@ export class ScrollingBackground {
           row.addChild(tree)
         }
       }
-      for (let x = rightStart; x < rightEnd; x += TREE_SPACING) {
+      for (let x = treeRightStart; x < rightEnd; x += TREE_SPACING) {
         if (Math.random() < TREE_CHANCE) {
           const tree = this.assetLoader.createTree()
           tree.x = x + Math.random() * TREE_SPACING
