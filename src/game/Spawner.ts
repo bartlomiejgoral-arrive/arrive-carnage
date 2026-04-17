@@ -6,15 +6,21 @@ import { StreetLamp } from './objects/StreetLamp'
 import { Parkmeter } from './objects/Parkmeter'
 import {
   COLUMN_COUNT, SPAWN_INTERVAL_MIN, SPAWN_INTERVAL_MAX, MIN_VERTICAL_GAP,
+  LANE_CHANGE_MIN_INTERVAL, LANE_CHANGE_MAX_INTERVAL,
 } from './constants'
 
-function randomTimer(): number {
+function randomSpawnTimer(): number {
   return SPAWN_INTERVAL_MIN + Math.random() * (SPAWN_INTERVAL_MAX - SPAWN_INTERVAL_MIN)
+}
+
+function randomLaneChangeTimer(): number {
+  return LANE_CHANGE_MIN_INTERVAL + Math.random() * (LANE_CHANGE_MAX_INTERVAL - LANE_CHANGE_MIN_INTERVAL)
 }
 
 export class Spawner {
   readonly objects: GameObject[] = []
-  private spawnTimer = randomTimer()
+  private spawnTimer = randomSpawnTimer()
+  private laneChangeTimer = randomLaneChangeTimer()
 
   constructor(
     private readonly assetLoader: AssetLoader,
@@ -25,7 +31,13 @@ export class Spawner {
     this.spawnTimer -= delta
     if (this.spawnTimer <= 0) {
       this.attemptSpawn()
-      this.spawnTimer = randomTimer()
+      this.spawnTimer = randomSpawnTimer()
+    }
+
+    this.laneChangeTimer -= delta
+    if (this.laneChangeTimer <= 0) {
+      this.attemptLaneChange()
+      this.laneChangeTimer = randomLaneChangeTimer()
     }
 
     for (const obj of this.objects) {
@@ -67,5 +79,31 @@ export class Spawner {
 
     this.sceneContainer.addChild(obj.container)
     this.objects.push(obj)
+  }
+
+  private attemptLaneChange(): void {
+    const cars = this.objects.filter(
+      (o): o is Car => o instanceof Car && !o.isChangingLane,
+    )
+    if (cars.length === 0) return
+
+    // Pick a random car
+    const car = cars[Math.floor(Math.random() * cars.length)]
+
+    // Pick a random adjacent lane direction
+    const dir = Math.random() < 0.5 ? -1 : 1
+    const newCol = car.column + dir
+    if (newCol < 2 || newCol > COLUMN_COUNT - 1) return
+
+    // Check clearance in the target lane — no car within vertical gap
+    const blocked = this.objects.some(
+      (o) => o !== car
+        && o instanceof Car
+        && o.column === newCol
+        && Math.abs(o.container.y - car.container.y) < MIN_VERTICAL_GAP,
+    )
+    if (blocked) return
+
+    car.startLaneChange(newCol)
   }
 }

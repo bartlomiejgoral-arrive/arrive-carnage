@@ -29,10 +29,12 @@ export async function createGame(container: HTMLElement): Promise<Application> {
   app.stage.addChild(gameContainer)
 
   const fitToScreen = () => {
-    const scale = app.screen.height / CANVAS_HEIGHT
+    const scaleX = app.screen.width / CANVAS_WIDTH
+    const scaleY = app.screen.height / CANVAS_HEIGHT
+    const scale = Math.min(scaleX, scaleY)
     gameContainer.scale.set(scale)
     gameContainer.x = (app.screen.width - CANVAS_WIDTH * scale) / 2
-    gameContainer.y = 0
+    gameContainer.y = (app.screen.height - CANVAS_HEIGHT * scale) / 2
   }
 
   fitToScreen()
