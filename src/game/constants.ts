@@ -15,3 +15,5 @@ export const SPEED_ACCELERATION_INTERVAL = 10 // seconds
 export const MAX_SCORES = 5
 
 export const PLAYER_START_COLUMN = 2 // 0-indexed; column 3 in 1-indexed spec
+
+export const SPAWN_INTERVAL = 90 // frames between spawn events (~1.5 s at 60 fps)
