@@ -70,7 +70,7 @@ The play area is **6 tiles wide** and fills the full canvas height, laid out as:
 - The **6-tile-wide road** sits in the centre of the canvas, composed of a 4-lane street flanked by one sidewalk tile on each side.
 - **Greenery** fills the remaining canvas width on both sides and scrolls in sync with the road, extending the sense of movement beyond the play area.
 
-The board is an **infinite scroller** — tiles scroll continuously downward and the scroll speed increases gradually over time. The player's car starts at the bottom centre (tile 3) and can move **left or right** using the arrow keys to avoid obstacles (see the Game engine section).
+The board is an **infinite scroller** — tiles scroll continuously downward and the scroll speed increases gradually over time. The player's car starts at the bottom centre (tile 3) and can move **left or right** using the arrow keys to avoid obstacles (see the Game specification section).
 
 ### Game over screen
 
@@ -87,7 +87,7 @@ A 2D vertical infinite scroller. The world scrolls from bottom to top — the pl
 ### Canvas & layout
 
 - Fixed canvas: **800 × 600 px**.
-- Playfield divided into **6 equal-width columns** (800 / 6 ≈ 133 px each).
+- The centre of the canvas holds the **6-column road** (sidewalk + 4 lanes + sidewalk). Greenery panels fill the remaining canvas width on both sides and scroll in sync with the road.
 
 | Column | Type     | Spawn pool                   |
 |--------|----------|------------------------------|
@@ -130,7 +130,8 @@ A 2D vertical infinite scroller. The world scrolls from bottom to top — the pl
 ### Screens & flow
 
 ```
-Title screen  →  [any key]  →  Gameplay  →  [collision]  →  Game Over screen  →  [any key]  →  Title screen
+Title screen  →  [START]  →  Gameplay  →  [collision]  →  Game Over screen  →  [any key]  →  Title screen
+              →  [TOP 5]  →  Leaderboard  →  [EXIT]  →  Title screen
 ```
 
 - Screens are kept as simple as possible (minimal text, no complex transitions).
