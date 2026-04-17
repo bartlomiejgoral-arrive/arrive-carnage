@@ -1,4 +1,4 @@
-export type InputAction = 'left' | 'right' | 'any'
+export type InputAction = 'left' | 'right' | 'enter' | 'any'
 export type InputHandler = () => void
 
 export class InputManager {
@@ -29,6 +29,7 @@ export class InputManager {
   private handleKey(e: KeyboardEvent): void {
     if (e.key === 'ArrowLeft') this.dispatch('left')
     else if (e.key === 'ArrowRight') this.dispatch('right')
+    else if (e.key === 'Enter' || e.key === ' ') this.dispatch('enter')
     this.dispatch('any')
   }
 

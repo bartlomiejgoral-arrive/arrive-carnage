@@ -26,6 +26,20 @@ describe('InputManager', () => {
     expect(handler).toHaveBeenCalledOnce()
   })
 
+  it('dispatches enter on Enter key', () => {
+    const handler = vi.fn()
+    manager.on('enter', handler)
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+    expect(handler).toHaveBeenCalledOnce()
+  })
+
+  it('dispatches enter on Space key', () => {
+    const handler = vi.fn()
+    manager.on('enter', handler)
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }))
+    expect(handler).toHaveBeenCalledOnce()
+  })
+
   it('dispatches any on every keydown', () => {
     const handler = vi.fn()
     manager.on('any', handler)

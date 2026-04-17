@@ -7,20 +7,31 @@ export default function GameCanvas() {
   const appRef = useRef<Application | null>(null)
 
   useEffect(() => {
-    if (!containerRef.current || appRef.current) return
+    if (!containerRef.current) return
 
-    let app: Application | null = null
+    // StrictMode fires effects twice; `cancelled` is scoped to each run so the
+    // first async init self-destructs while the second one proceeds normally.
+    let cancelled = false
 
     const init = async () => {
-      app = await createGame(containerRef.current!)
+      const app = await createGame(containerRef.current!)
+      if (cancelled) {
+        app.canvas.remove()
+        app.destroy()
+        return
+      }
       appRef.current = app
     }
 
     init()
 
     return () => {
-      appRef.current?.destroy(true)
-      appRef.current = null
+      cancelled = true
+      if (appRef.current) {
+        appRef.current.canvas.remove()
+        appRef.current.destroy()
+        appRef.current = null
+      }
     }
   }, [])
 
